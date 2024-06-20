@@ -8,13 +8,13 @@ import json
 
 # Define the augmentation pipeline
 augmentation_pipeline = A.Compose([
-    A.VerticalFlip(p=0.5),
-    A.HorizontalFlip(p=0.5),
-    A.RandomRotate90(p=0.5),
-    A.RandomBrightnessContrast(p=0.5),
-    A.HueSaturationValue(p=0.5),
-    A.Blur(p=0.5),
-    A.GaussNoise(p=0.5),
+    A.VerticalFlip(p=0.2),
+    A.HorizontalFlip(p=0.2),
+    A.RandomRotate90(p=0.2),
+    A.RandomBrightnessContrast(p=0.2),
+    A.HueSaturationValue(p=0.2),
+    A.Blur(p=0.2),
+    A.GaussNoise(p=0.2),
     A.Resize(1024, 1024)
 ], bbox_params=A.BboxParams(format='yolo', label_fields=['class_labels']))
 
@@ -65,13 +65,14 @@ def augment_and_save(image_path, label_path, output_image_dir, output_label_dir,
 
 
 # Paths
-train_images_dir = "/workspace/xray/yolo_dataset/train/images"
-train_labels_dir = "/workspace/xray/yolo_dataset/train/labels"
-augmented_images_dir = "/workspace/xray/yolo_dataset/augmented/images"
-augmented_labels_dir = "/workspace/xray/yolo_dataset/augmented/labels"
+train_images_dir = "/workspace/xray/yolo_dataset/single_class/train/images"
+train_labels_dir = "/workspace/xray/yolo_dataset/single_class/train/labels"
+augmented_images_dir = "/workspace/xray/yolo_dataset/single_class/augmented_simply/images"
+augmented_labels_dir = "/workspace/xray/yolo_dataset/single_class/augmented_simply/labels"
 os.makedirs(augmented_images_dir, exist_ok=True)
 os.makedirs(augmented_labels_dir, exist_ok=True)
 
+index = 0
 # Augment and save each image and its corresponding labels
 for image_file in os.listdir(train_images_dir):
     if image_file.endswith(('.jpg', '.jpeg', '.png')):
@@ -79,3 +80,5 @@ for image_file in os.listdir(train_images_dir):
         label_path = os.path.join(train_labels_dir,
                                   image_file.replace('.jpg', '.txt').replace('.jpeg', '.txt').replace('.png', '.txt'))
         augment_and_save(image_path, label_path, augmented_images_dir, augmented_labels_dir, num_augmentations=5)
+        print(image_path, index)
+        index+=1

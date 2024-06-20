@@ -18,7 +18,7 @@ labels = ['Atelectasis',
  'Pneumothorax']
 
 
-base_folder = '/workspace/xray/yolo_dataset'
+base_folder = '/workspace/xray/yolo_dataset/single_class'
 image_folder = '/workspace/xray/images'
 
 def convert_to_yolo(image_width, image_height, top_left_x, top_left_y, width, height):
@@ -72,7 +72,7 @@ def preprocess(df, output_folder):
 
         shutil.copy(image_path, dest_image_path)
         with open(dest_label_path, "w") as f:
-            f.write(f"{label_id} {xc} {yc} {w} {h}")
+            f.write(f"0 {xc} {yc} {w} {h}")
 
         print(idx)
 
