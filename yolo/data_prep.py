@@ -61,9 +61,9 @@ def preprocess(df, output_folder):
 
         image_path = os.path.join(image_folder, filename)
         image = cv2.imread(image_path)
-        h,w,_ = image.shape
+        img_h,img_w,_ = image.shape
 
-        xc,yc,w,h = convert_to_yolo(w,h,top_left_x, top_left_y, width, height)
+        xc,yc,w,h = convert_to_yolo(img_w,img_h,top_left_x, top_left_y, width, height)
 
         label_id = labels.index(label)
 

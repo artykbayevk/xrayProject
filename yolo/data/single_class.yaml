@@ -1,7 +1,6 @@
 path: "/workspace/xray/yolo_dataset"
 train:
   - "/workspace/xray/yolo_dataset/single_class/train/images"
-  - "/workspace/xray/yolo_dataset/single_class/augmented_simply/images"
 val: "/workspace/xray/yolo_dataset/single_class/val/images"
 
 names:
