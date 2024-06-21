@@ -6,14 +6,14 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print(f'Using device: {device}')
 
 # Load the YOLOv8 model
-model = YOLO('yolov9e.pt')  # Use the YOLOv8 model variant you prefer
+model = YOLO('yolov8x.pt')  # Use the YOLOv8 model variant you prefer
 
 # Set the training parameters
 data_config = './data/single_class.yaml'
 epochs = 1000
-batch_size = 4
-image_size = 640
-num_workers = 16
+batch_size = 12
+image_size = 1024
+num_workers = 32
 # Define the augmentation parameters
 augmentation_params = {
     'flipud': 0.2,    # Vertical flip probability
@@ -31,5 +31,5 @@ augmentation_params = {
 }
 
 # Train the model with augmentations on multiple GPUs
-model.train(data=data_config, epochs=epochs, optimizer="Adam",workers=num_workers,batch=batch_size, imgsz=image_size,
-            augment=True, device="0",verbose=True, single_cls=True,cos_lr=True,amp=False,plots=True, save=True,**augmentation_params)
+model.train(data=data_config, epochs=epochs,workers=num_workers,batch=batch_size, imgsz=image_size,
+            save_period=10,augment=True, device="0",optimizer="AdamW",project="/workspace/xray/yolo_dataset/output_dir",name="xray",verbose=True, single_cls=True,plots=True, save=True,lr0=0.0001,**augmentation_params)

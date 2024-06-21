@@ -1,46 +1,22 @@
+import os
 import shutil
 
-import pandas as pd
-import os
 import cv2
-import numpy as np
+import pandas as pd
 
-train = pd.read_csv("/workspace/xray/train.csv")
-test = pd.read_csv("/workspace/xray/test.csv")
+train = pd.read_csv("/data/yolo_dataset/train_unique.csv")
+test = pd.read_csv("/data/yolo_dataset/test_unique.csv")
 
-labels = ['Atelectasis',
- 'Cardiomegaly',
- 'Effusion',
- 'Infiltrate',
- 'Mass',
- 'Nodule',
- 'Pneumonia',
- 'Pneumothorax']
+labels = ['Atelectasis', 'Cardiomegaly', 'Effusion', 'Infiltrate', 'Mass', 'Nodule', 'Pneumonia', 'Pneumothorax']
 
+base_folder = '/data/yolo_dataset'
+image_folder = '/data/images'
 
-base_folder = '/workspace/xray/yolo_dataset/single_class'
-image_folder = '/workspace/xray/images'
 
 def convert_to_yolo(image_width, image_height, top_left_x, top_left_y, width, height):
-    """
-    Convert bounding box from (top_left_x, top_left_y, width, height) format to YOLO format.
-
-    Parameters:
-    image_width (int): Width of the image.
-    image_height (int): Height of the image.
-    top_left_x (int): X coordinate of the top-left corner of the bounding box.
-    top_left_y (int): Y coordinate of the top-left corner of the bounding box.
-    width (int): Width of the bounding box.
-    height (int): Height of the bounding box.
-
-    Returns:
-    tuple: Bounding box in YOLO format (x_center, y_center, width, height) normalized.
-    """
-    # Calculate the center coordinates
     x_center = top_left_x + width / 2.0
     y_center = top_left_y + height / 2.0
 
-    # Normalize the coordinates by the dimensions of the image
     x_center /= image_width
     y_center /= image_height
     width /= image_width
@@ -61,9 +37,10 @@ def preprocess(df, output_folder):
 
         image_path = os.path.join(image_folder, filename)
         image = cv2.imread(image_path)
-        img_h,img_w,_ = image.shape
+        img_h, img_w, _ = image.shape
 
-        xc,yc,w,h = convert_to_yolo(img_w,img_h,top_left_x, top_left_y, width, height)
+        xc, yc, w, h = convert_to_yolo(image_width=img_w, image_height=img_h, top_left_x=top_left_x,
+                                       top_left_y=top_left_y, width=width, height=height)
 
         label_id = labels.index(label)
 
@@ -72,10 +49,9 @@ def preprocess(df, output_folder):
 
         shutil.copy(image_path, dest_image_path)
         with open(dest_label_path, "w") as f:
-            f.write(f"0 {xc} {yc} {w} {h}")
+            f.write(f"{label_id} {xc} {yc} {w} {h}")
 
         print(idx)
-
 
 
 if __name__ == '__main__':

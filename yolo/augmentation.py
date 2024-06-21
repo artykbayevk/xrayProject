@@ -65,10 +65,10 @@ def augment_and_save(image_path, label_path, output_image_dir, output_label_dir,
 
 
 # Paths
-train_images_dir = "/workspace/xray/yolo_dataset/single_class/train/images"
-train_labels_dir = "/workspace/xray/yolo_dataset/single_class/train/labels"
-augmented_images_dir = "/workspace/xray/yolo_dataset/single_class/augmented_simply/images"
-augmented_labels_dir = "/workspace/xray/yolo_dataset/single_class/augmented_simply/labels"
+train_images_dir = "/data/yolo_dataset/train/images"
+train_labels_dir = "/data/yolo_dataset/train/labels"
+augmented_images_dir = "/data/yolo_dataset/augmented/images"
+augmented_labels_dir = "/data/yolo_dataset/augmented/labels"
 os.makedirs(augmented_images_dir, exist_ok=True)
 os.makedirs(augmented_labels_dir, exist_ok=True)
 

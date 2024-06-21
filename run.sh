@@ -1,1 +1,1 @@
-docker run -d -it --rm  --ipc=host --gpus all --cap-add sys_ptrace -p0.0.0.0:2222:22 -p8888:8888 -v ~/Data/xray:/data -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$DISPLAY  --name dev mmdetection:1.1
+docker run -d -it --rm  --ipc=host --gpus all --cap-add sys_ptrace -p0.0.0.0:2222:22 -p8888:8888 -v ~/Data/xray:/data --name dev mmdetection:1.1
