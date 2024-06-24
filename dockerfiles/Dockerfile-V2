@@ -1,0 +1,68 @@
+ARG PYTORCH="1.8.1"
+ARG CUDA="11.1"
+ARG CUDNN="8"
+
+FROM pytorch/pytorch:${PYTORCH}-cuda${CUDA}-cudnn${CUDNN}-devel
+
+SHELL ["/bin/bash", "-c"]
+ENV NVIDIA_DRIVER_CAPABILITIES all
+
+ENV TORCH_CUDA_ARCH_LIST="6.0 6.1 7.0 7.5 8.0 8.6+PTX" \
+    TORCH_NVCC_FLAGS="-Xfatbin -compress-all" \
+    CMAKE_PREFIX_PATH="$(dirname $(which conda))/../" \
+    FORCE_CUDA="1"
+
+# Avoid Public GPG key error
+# https://github.com/NVIDIA/nvidia-docker/issues/1631
+RUN rm /etc/apt/sources.list.d/cuda.list \
+    && rm /etc/apt/sources.list.d/nvidia-ml.list \
+    && apt-key del 7fa2af80 \
+    && apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub \
+    && apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64/7fa2af80.pub
+
+# (Optional, use Mirror to speed up downloads)
+# RUN sed -i 's/http:\/\/archive.ubuntu.com\/ubuntu\//http:\/\/mirrors.aliyun.com\/ubuntu\//g' /etc/apt/sources.list && \
+#    pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+
+# Install the required packages
+RUN apt-get update \
+    && apt-get install -y ffmpeg libsm6  \
+    libxext6 git ninja-build  \
+    libglib2.0-0 libsm6 libxrender-dev  \
+    libxext6 g++ git wget build-essential  \
+    ssh sudo gcc gdb clang cmake rsync tar \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN /opt/conda/bin/pip install --upgrade pip
+
+RUN /opt/conda/bin/pip install pandas==1.1.5 numpy==1.19.5 protobuf==3.15.7 ensemble_boxes==1.0.6
+
+RUN git clone https://github.com/open-mmlab/mmcv.git && cd mmcv && git checkout 375605fba8f89f40eb1b6b67b4aab83fbe769098 && MMCV_WITH_OPS=1 pip install -e .
+
+RUN cd / && git clone https://github.com/open-mmlab/mmdetection.git && cd mmdetection && git checkout 5ebba9a9221c3f6f8754d4efe293cdcd12be8dd4
+RUN pip install cython==0.29.22 numpy==1.19.5
+RUN pip install albumentations>=0.3.2 \
+    cityscapesscripts==2.2.0 imagecorruptions==1.1.2 mmlvis==10.5.3 scipy==1.5.4 scikit-learn==0.24.1 && pip install future==0.18.2 tensorboard==2.4.1
+
+RUN cd /mmdetection && pip install -v -e .
+
+RUN /opt/conda/bin/pip3 install --upgrade pip
+RUN /opt/conda/bin/pip3 install --no-cache-dir setuptools && /opt/conda/bin/pip3 install --no-cache-dir jupyterlab jupyter scikit-learn Pillow
+WORKDIR /mmdetection
+
+RUN ( \
+    echo 'LogLevel DEBUG2'; \
+    echo 'PermitRootLogin yes'; \
+    echo 'PasswordAuthentication yes'; \
+    echo 'Subsystem sftp /usr/lib/openssh/sftp-server'; \
+  ) > /etc/ssh/sshd_config_test_clion \
+  && mkdir /run/sshd
+
+RUN useradd -m user \
+  && yes password | passwd user && adduser user sudo
+#USER user
+
+RUN usermod -s /bin/bash user
+
+CMD ["/usr/sbin/sshd", "-D", "-e", "-f", "/etc/ssh/sshd_config_test_clion"]
