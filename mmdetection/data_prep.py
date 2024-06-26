@@ -80,5 +80,5 @@ def process(folder, output_annotation, output_image_folder, is_multiple=True):
 
 
 if __name__ == '__main__':
-    process("/data/yolo_dataset/tmp", "/data/single/train.json", "/data/single", is_multiple=False)
+    process("/data/yolo_dataset/train", "/data/single/train.json", "/data/single", is_multiple=False)
     process("/data/yolo_dataset/val", "/data/single/test.json", "/data/single", is_multiple=False)
