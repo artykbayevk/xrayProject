@@ -1,6 +1,6 @@
 _base_ = '/mmdetection/configs/detectors/cascade-rcnn_r50-rfp_1x_coco.py'
 
-data_root = '/data/single/'  # dataset root
+data_root = '/data/single_dataset/'  # dataset root
 train_batch_size_per_gpu = 6
 train_num_workers = 16
 

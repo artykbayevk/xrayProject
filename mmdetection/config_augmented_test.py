@@ -1,12 +1,6 @@
 _base_ = '/mmdetection/configs/detectors/cascade-rcnn_r50-rfp_1x_coco.py'
 
 data_root = '/data/images/'  # dataset root
-train_batch_size_per_gpu = 6
-train_num_workers = 16
-
-max_epochs = 50
-stage2_num_epochs = 1
-base_lr = 0.00008
 
 metainfo = {
     'classes': (
@@ -32,54 +26,6 @@ metainfo = {
 }
 
 
-train_pipeline = [
-    dict(type='LoadImageFromFile'),
-    dict(type='LoadAnnotations', with_bbox=True),
-    dict(type='Resize', scale=(1024, 1024), keep_ratio=True),
-    dict(type='YOLOXHSVRandomAug'),
-    dict(type='RandomFlip', prob=0.1),
-    dict(type='Normalize', mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True),
-    dict(type='PackDetInputs'),
-]
-
-test_pipeline = [
-    dict(type='LoadImageFromFile'),
-    dict(type='Resize', scale=(1024, 1024),keep_ratio=True),
-    dict(type='LoadAnnotations', with_bbox=True),
-    dict(type='RandomFlip', prob=0.1),
-    dict(type='Normalize', mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True),
-    dict( type='PackDetInputs',
-        meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape',
-                   'scale_factor')),
-]
-
-train_dataloader = dict(
-    batch_size=train_batch_size_per_gpu,
-    num_workers=train_num_workers,
-    dataset=dict(
-        data_root=data_root,
-        metainfo=metainfo,
-        data_prefix=dict(img=''),
-        ann_file='train.json',
-        pipeline=train_pipeline
-    ),
-)
-
-val_dataloader = dict(
-    dataset=dict(
-        data_root=data_root,
-        metainfo=metainfo,
-        data_prefix=dict(img=''),
-        ann_file='test.json',
-        pipeline=test_pipeline),
-
-)
-
-test_dataloader = val_dataloader
-
-val_evaluator = dict(ann_file=data_root + 'test.json')
-
-test_evaluator = val_evaluator
 
 model = dict(
     roi_head=dict(
@@ -149,46 +95,31 @@ model = dict(
             max_per_img=100,
             mask_thr_binary=0.5)))
 
-optim_wrapper = dict(
-    _delete_=True,
-    type='OptimWrapper',
-    optimizer=dict(type='AdamW', lr=base_lr, weight_decay=0.05),
-    paramwise_cfg=dict(
-        norm_decay_mult=0, bias_decay_mult=0, bypass_duplicate=True))
-
-param_scheduler = [
-    dict(
-        type='LinearLR',
-        start_factor=1.0e-5,
-        by_epoch=False,
-        begin=0,
-        end=25),
-    dict(
-        type='CosineAnnealingLR',
-        eta_min=base_lr * 0.05,
-        begin=max_epochs // 2,
-        end=max_epochs,
-        T_max=max_epochs // 2,
-        by_epoch=True,
-        convert_to_iter_based=True),
+test_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(type='Resize', scale=(1024, 1024),keep_ratio=True),
+    dict(type='LoadAnnotations', with_bbox=True),
+    dict(type='RandomFlip', prob=0.1),
+    dict(type='Normalize', mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True),
+    dict( type='PackDetInputs',
+        meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape',
+                   'scale_factor')),
 ]
 
-default_hooks = dict(
-    checkpoint=dict(
-        interval=5,
-        max_keep_ckpts=2,  # only keep latest 2 checkpoints
-        save_best='auto'
-    ),
-    logger=dict(type='LoggerHook', interval=5))
+test_dataloader = dict(
+    dataset=dict(
+        data_root=data_root,
+        metainfo=metainfo,
+        data_prefix=dict(img=''),
+        ann_file='test.json',
+        pipeline=test_pipeline),
 
+)
+val_dataloader = test_dataloader
 
-# load cascade model pre-trained weight
-load_from = '/data/checkpoints/cascade_rcnn_r50_rfp_1x_coco-8cf51bfd.pth'
+val_evaluator = dict(ann_file=data_root + 'test.json', metric='bbox',
+    format_only=False,    type='CocoMetric',
+)
+test_evaluator=val_evaluator
 
-train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=max_epochs, val_interval=1)
-visualizer = dict(vis_backends=[dict(type='LocalVisBackend'), dict(type='TensorboardVisBackend')])
-
-# Set random seed to ensure deterministic behavior
-seed = 42
-
-work_dir = "/data/results/multiple"
+work_dir = '/data/results/multiple_test'

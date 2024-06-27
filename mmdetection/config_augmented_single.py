@@ -4,9 +4,8 @@ data_root = '/data/single/'  # dataset root
 train_batch_size_per_gpu = 6
 train_num_workers = 16
 
-max_epochs = 100
-stage2_num_epochs = 1
-base_lr = 0.00008
+max_epochs = 50
+base_lr = 0.0008
 
 metainfo = {
     'classes': (
@@ -177,4 +176,4 @@ visualizer = dict(vis_backends=[dict(type='LocalVisBackend'), dict(type='Tensorb
 # Set random seed to ensure deterministic behavior
 seed = 42
 
-work_dir = "/data/work_dir/images"
+work_dir = "/data/results/single_final"

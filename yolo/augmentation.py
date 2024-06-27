@@ -1,10 +1,7 @@
 import os
 import albumentations as A
-from albumentations.pytorch import ToTensorV2
 from PIL import Image
 import numpy as np
-import cv2
-import json
 
 # Define the augmentation pipeline
 augmentation_pipeline = A.Compose([
@@ -20,7 +17,6 @@ augmentation_pipeline = A.Compose([
 
 
 def load_image_and_labels(image_path, label_path):
-    # Load image
     image = np.array(Image.open(image_path).convert("RGB"))
 
     # Load labels
@@ -36,11 +32,9 @@ def load_image_and_labels(image_path, label_path):
 
 
 def save_augmented_data(augmented_image, augmented_bboxes, augmented_labels, output_image_path, output_label_path):
-    # Save the augmented image
     augmented_image_pil = Image.fromarray(augmented_image)
     augmented_image_pil.save(output_image_path)
 
-    # Save the augmented labels
     with open(output_label_path, 'w') as file:
         for bbox, label in zip(augmented_bboxes, augmented_labels):
             bbox_str = ' '.join(map(str, bbox))
@@ -64,7 +58,6 @@ def augment_and_save(image_path, label_path, output_image_dir, output_label_dir,
         save_augmented_data(augmented_image, augmented_bboxes, augmented_labels, output_image_path, output_label_path)
 
 
-# Paths
 train_images_dir = "/data/yolo_dataset/train/images"
 train_labels_dir = "/data/yolo_dataset/train/labels"
 augmented_images_dir = "/data/yolo_dataset/augmented/images"
@@ -73,7 +66,6 @@ os.makedirs(augmented_images_dir, exist_ok=True)
 os.makedirs(augmented_labels_dir, exist_ok=True)
 
 index = 0
-# Augment and save each image and its corresponding labels
 for image_file in os.listdir(train_images_dir):
     if image_file.endswith(('.jpg', '.jpeg', '.png')):
         image_path = os.path.join(train_images_dir, image_file)

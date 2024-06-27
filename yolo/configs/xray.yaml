@@ -1,7 +1,6 @@
 path: "/data/yolo_dataset"
 train:
   - "/data/yolo_dataset/train/images"
-  - "/data/yolo_dataset/augmented/images"
 val: "/data/yolo_dataset/val/images"
 
 names:
@@ -13,3 +12,7 @@ names:
   5: 'Nodule'
   6: 'Pneumonia'
   7: 'Pneumothorax'
+
+
+
+#  - "/data/yolo_dataset/augmented/images"
