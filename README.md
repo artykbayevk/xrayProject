@@ -1,1 +1,1 @@
-xray project to denti ai
+xray project
